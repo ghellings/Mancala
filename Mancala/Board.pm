@@ -45,19 +45,22 @@ sub move {
 	}
 	my $start_house = "house$house";
 	my $seeds = $self->$start_house();
-	$self->player($player);
-	my $valid_moves = $self->possible_feed;
-	unless ($valid_moves) {
-		$self->wincondition(1);
-		return;
-	}
+	
 	my %cond;
-	$cond{'empty_player'}	 = $valid_moves->{$start_house}         ? undef : "Move leaves opponent empty";
-	$cond{'not_a_player'}	 = ref $player eq 'Mancala::Player' 	? undef : "Not a valid Mancala::Player";
-	$cond{'invalid_move_p1'} = $player->position == 1 && $house > 6 ? "Not a valid move for player 1" : undef;
-	$cond{'invalid_move_p2'} = $player->position == 2 && $house < 7 ? "Not a valid move for player 2" : undef;
-	$cond{'invalid_move_noseeds'}	= $seeds 			? undef : "No seeds in house";
+	my $valid_house = grep /^$start_house$/, ($self->player_houses($player));
+	$cond{'not_a_player'}  = ref $player eq 'Mancala::Player' 				? undef : "Not a valid Mancala::Player";
+	$cond{'invalid_house'} = $valid_house							? undef : "Not a valid move for ".$self->player->name."\n"; 
+	$cond{'invalid_move_noseeds'}	= $seeds 						? undef : "No seeds in house";
 	map { $self->error($cond{$_}) if $cond{$_}}  keys %cond;
+	my $valid_moves;
+	unless (values %cond) { 	
+		$valid_moves = $self->possible_feed;
+		unless (keys $valid_moves) {
+			$self->wincondition(1);
+			return;
+		}
+		$self->error("Move leaves opponent empty") unless $valid_moves->{$start_house};
+	}
 	return if $self->error;
 	$self->$start_house(0);
 	my @loop = map { "house$_"; }  (($house+1)..12,1..($house-1));
@@ -110,27 +113,21 @@ sub whole_board {
 	return $board; 
 }
 
-# Return true if players houses are all empty
-sub player_houses_empty {
-	my ($self,$player) = @_;
-	my $count;
-	map $count += $self->$_, $self->player_houses($player);
-	return if $count;
-	return 1;
-}
-
 # Clone the board, try all possible moves for current player and return valid moves that
 # don't leave the opponent houses empty
 sub possible_feed {
 	my $self = shift;
-	my $copy_of_board = $self->clone;
+	print "Checking possible moves\n";
 	my %valid_move;
 	foreach my $house ($self->player_houses($self->player)) {
+		my $copy_of_board = $self->clone;
 		$copy_of_board->move($house,$self->player); 
+		print Dumper $copy_of_board->whole_board;
 		unless ($copy_of_board->player_houses_empty($self->other_player)) {
 			$valid_move{$house} = 1;
 		}
 	}
+	print Dumper \%valid_move;
 	return \%valid_move;		
 }
 
@@ -152,6 +149,16 @@ sub player_houses {
 	my @houses = $player->position == 1 ? map "house$_", 1..6 : map "house$_", 6..12;
 	return @houses;
 }
+
+# Return true if players houses are all empty
+sub player_houses_empty {
+	my ($self,$player) = @_;
+	my $count;
+	map $count += $self->$_, $self->player_houses($player);
+	return if $count;
+	return 1;
+}
+
 
 1;
 

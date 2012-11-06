@@ -24,6 +24,7 @@ sub play {
 	while ( ! $gameover ) {
 		$self->print_board;
 		$self->print_scores;
+		$self->board->player($self->turn);
 		my $valid_input;
 		do {
 			$self->board->clear_error;	
@@ -31,11 +32,20 @@ sub play {
 			my $input = <>;
 			chomp $input;
 			$valid_input = $self->board->move($input,$self->turn);
+			if ($self->board->wincondition) {
+				my $winner = $self->board->other_player;
+				print "Game won by : ".$winner->name;
+				exit;
+			}
 			print $self->board->error unless $valid_input;
 		} until ($valid_input);
 		$self->print_board;
 		my $score = $self->board->score($self->turn);
 		$gameover = 1 if $self->turn->points >= 25;
+		if ($self->board->player_houses_empty($self->turn)) {
+			$self->change_player_turn;
+			next;
+		}
 		next if $score;
 		$self->change_player_turn;
 	}
