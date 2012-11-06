@@ -75,20 +75,18 @@ sub score {
 	my ($self,$player) = @_;
 	print "Last house was : ". $self->_lasthouse . "\n";
 	my ($current_house) = $self->_lasthouse =~ /(\d+)/;
-	print "Current house is $current_house\n";
 	my $count_cond;
 	if ( $player->position == 1 ) {
 		return 0 if $current_house < 7;
-		$count_cond = sub { return 1 if shift ge 7; };
+		$count_cond = sub { return 1 if $_[0] >= 7; };
 	}
 	else {
 		return 0 if $current_house > 6;
-		$count_cond = sub { return 1 if shift le 6; };
+		$count_cond = sub { return 1 if $_[0] <= 6; };
 	}
-	my $total_score;	
+	my $total_score;
 	while ( &{$count_cond}($current_house) ) {
 		my $house_name = "house$current_house";
-		print "Checking $house_name\n";
 		my $score = $self->$house_name;
 		if ( $score == 2 || $score == 3 ) {
 			$self->$house_name(0);
