@@ -1,0 +1,42 @@
+You'll need to install a few perl modules to run this.  
+
+sudo cpan install Module::Name is how you do that.  
+The modules are: 
+	Moose
+	Tie::Cycle 
+	Carp
+	Data::Dumper  
+That should be it.  Only Moose might give you trouble.  
+
+To run the game, just execute ./mancala.pl.  
+The board prints with player1's houses labelled 1-6 and player2' 7-12.
+
+	house1     [ 4]	house12    [ 4]
+	house2     [ 4]	house11    [ 4]
+	house3     [ 4]	house10    [ 4]
+	house4     [ 4]	house9     [ 4]
+	house5     [ 4]	house8     [ 4]
+	house6     [ 4]	house7     [ 4]
+	Player 1: 0
+	Player 2: 0
+	player1, select a move
+
+
+Seed counts are in [] next to the houses and the game moves counter clockwise, or from 1 to 12.
+Choose the house you want to move by entering the number of the house and pressing enter.  The 
+seeds will move around the board skipping the house of origin for the seeds.  This process is 
+called sewing.  If the last seed sewn is deposited in a house of your opponent then scoring is
+possible.  If the total amount of seeds in that house equal two or three, those seeds are 
+added to your point total and removed from the house.  Next the house numerically previous to 
+that house is examined, if it's still your opponents house and the total equals two or 
+three, once again those points are added to your total and remove from the house.  This 
+process repeats until the previous house is no longer your opponents or the seed total does 
+not equal two or three.  If you score on your move, it is still your turn and you must move
+again, you must repeat this process until your move results in no score.  
+
+If your opponet has no seeds in any of their houses on your turn, 
+you must feed your opponent by selecting a house on your side that will populate at least one 
+of your opponent's houses. If you are unable to feed your opponent in this situation, the game
+is over and your opponent wins no matter what the score is.  If on your turn your point total
+reaches 25 you, the game is over and you win.    
+
