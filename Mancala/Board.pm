@@ -38,30 +38,36 @@ sub clear_error {
 
 # Handle moving seeds around board and deal with legal moves
 sub move {
-	my ($self,$house,$player) = @_;
-	unless ( $house =~ /^\d+$/ && $house > 0 && $house < 13) {
-		$self->error("'$house' is not a valid house");
-		return;
-	}
+	my ($self,$house,$player,$nocheck) = @_;
+	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
 	my $start_house = "house$house";
-	my $seeds = $self->$start_house();
 	
-	my %cond;
-	my $valid_house = grep /^$start_house$/, ($self->player_houses($player));
-	$cond{'not_a_player'}  = ref $player eq 'Mancala::Player' 				? undef : "Not a valid Mancala::Player";
-	$cond{'invalid_house'} = $valid_house							? undef : "Not a valid move for ".$self->player->name."\n"; 
-	$cond{'invalid_move_noseeds'}	= $seeds 						? undef : "No seeds in house";
-	map { $self->error($cond{$_}) if $cond{$_}}  keys %cond;
-	my $valid_moves;
-	unless (values %cond) { 	
+	my $seeds;
+	# get the number of seeds in house
+	unless($nocheck) {
+		# check if choosen house is a valid house for player to play from
+		unless ( grep /^$start_house$/, ($self->player_houses($player)) ) {
+			$self->error("Not a valid move for ".$self->player->name);
+		} 
+		# ensure seeds are in house selected
+		$seeds = $self->$start_house();
+		$self->error("No seeds in house") unless $seeds;
+
+		my $valid_moves;
+		# check a list of valid moves;
 		$valid_moves = $self->possible_feed;
-		unless (keys $valid_moves) {
+		# if there are not valid moves and the other player's houses are empty this player loses
+		if (! keys %$valid_moves && $self->player_houses_empty($self->other_player)) {
 			$self->wincondition(1);
 			return;
 		}
-		$self->error("Move leaves opponent empty") unless $valid_moves->{$start_house};
+		unless ( $self->error) {
+			$self->error("Move leaves opponent empty") unless $valid_moves->{$start_house};
+		}
+		return if $self->error;
 	}
-	return if $self->error;
+	# get seeds for nocheck case
+	$seeds = $self->$start_house() unless $seeds && $nocheck;
 	$self->$start_house(0);
 	my @loop = map { "house$_"; }  (($house+1)..12,1..($house-1));
 	tie my $houses_cycle, 'Tie::Cycle', \@loop; 
@@ -76,6 +82,7 @@ sub move {
 # Score moves
 sub score {
 	my ($self,$player) = @_;
+	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
 	print "Last house was : ". $self->_lasthouse . "\n";
 	my ($current_house) = $self->_lasthouse =~ /(\d+)/;
 	my $count_cond;
@@ -117,17 +124,15 @@ sub whole_board {
 # don't leave the opponent houses empty
 sub possible_feed {
 	my $self = shift;
-	print "Checking possible moves\n";
 	my %valid_move;
 	foreach my $house ($self->player_houses($self->player)) {
+		my ($housenum) = $house =~ /house(\d+)/;
 		my $copy_of_board = $self->clone;
-		$copy_of_board->move($house,$self->player); 
-		print Dumper $copy_of_board->whole_board;
+		$copy_of_board->move($housenum,$self->player,1); 
 		unless ($copy_of_board->player_houses_empty($self->other_player)) {
 			$valid_move{$house} = 1;
 		}
 	}
-	print Dumper \%valid_move;
 	return \%valid_move;		
 }
 
@@ -153,6 +158,7 @@ sub player_houses {
 # Return true if players houses are all empty
 sub player_houses_empty {
 	my ($self,$player) = @_;
+	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
 	my $count;
 	map $count += $self->$_, $self->player_houses($player);
 	return if $count;
