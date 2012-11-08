@@ -48,6 +48,7 @@ sub move {
 		# check if choosen house is a valid house for player to play from
 		unless ( grep /^$start_house$/, ($self->player_houses($player)) ) {
 			$self->error("Not a valid move for ".$self->player->name);
+			return;
 		} 
 		# ensure seeds are in house selected
 		$seeds = $self->$start_house();
