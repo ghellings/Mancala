@@ -2,7 +2,9 @@ You'll need to install a few perl modules to run this.
 
 sudo cpan install Module::Name is how you do that.  
 The modules are: 
+	YAML
 	Moose
+	MooseX::Clone
 	Tie::Cycle 
 	Carp
 	Data::Dumper  
