@@ -142,4 +142,13 @@ $board->player($player1);
 my $other_player = $board->other_player;
 cmp_ok($other_player->name, "eq", "Player2", q{Checking other_player method});
 
+# Test 20
+# Reset Board for score testing, set all houses to 1
+$board->clear_error;
+map $board->$_(1), @houses; 
+# $board->player($player1);
+$board->move(6,$player1);
+my $score = $board->score($player1);
+cmp_ok($score, "==", 2,q{check score for player1 scoring in house 7});
+   
 done_testing();

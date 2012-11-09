@@ -62,7 +62,7 @@ sub move {
 			$self->wincondition(1);
 			return;
 		}
-		unless ( $self->error) {
+		unless ( $self->error ) {
 			$self->error("Move leaves opponent empty") unless $valid_moves->{$start_house};
 		}
 		return if $self->error;
