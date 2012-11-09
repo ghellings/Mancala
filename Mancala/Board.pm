@@ -152,7 +152,7 @@ sub other_player {
 sub player_houses {
 	my ($self,$player) = @_;
 	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
-	my @houses = $player->position == 1 ? map "house$_", 1..6 : map "house$_", 6..12;
+	my @houses = $player->position == 1 ? map "house$_", 1..6 : map "house$_", 7..12;
 	return @houses;
 }
 
