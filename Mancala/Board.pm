@@ -5,38 +5,227 @@ use Tie::Cycle;
 use Data::Dumper;
 use Carp;
 use Moose;
+use namespace::autoclean;
+
 with qw{MooseX::Clone};
 
+=head1 NAME
+
+Mancala::Board
+
+=head1 DESCRIPTION
+
+Board for the game Mancala
+
+=head1 METHODS
+
+=cut
+
+
+=head2 house1
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house1'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house2
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house2'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house3
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house3'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house4
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house4'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house5
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house5'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house6
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house6'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house7
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house7'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house8
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house8'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house9
+
+holds count of seeds for house
+
+
+=cut
+
+
 has 'house9'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house10
+
+holds count of seeds for house
+
+
+=cut
+
+
 has 'house10'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house11
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house11'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 house12
+
+holds count of seeds for house
+
+=cut
+
+
 has 'house12'		=> ( 'is' => 'rw', isa => 'Int', default => 4, traits => [qw{Clone}], );
+
+
+=head2 player
+
+Mancala::Player object for player who's turn it currently is
+
+=cut
+
+
 has 'player'		=> ( 'is' => 'rw', isa => 'Mancala::Player');
+
+
+=head2 player1
+
+Mancala::Player object for player in position 1
+
+=cut
+
+
 has 'player1'		=> ( 'is' => 'ro', isa => 'Mancala::Player');
+
+
+=head2 player2
+
+Mancala::Player object for player in postion 2
+
+=cut
+
+
 has 'player2'		=> ( 'is' => 'ro', isa => 'Mancala::Player');
+
+
+=head2 wincondition
+
+Set to true if wincondition has been met
+
+=cut
+
+
 has 'wincondition'	=> ( 'is' => 'rw', isa => 'Int' );
+
+
+=head2 _lasthouse
+
+Private - holds house of last sewn seed
+
+=cut
+
+
 has '_lasthouse'	=> ( 'is' => 'rw', isa => 'Str');
-no Moose;
+
+
+=head2 error
+
+Collect and retrieve errors
+
+=cut
+
 
 sub error {
 	my ($self,$error) = @_;
 	$self->{'_error'} .= $error."\n" if $error;
 	return $self->{'_error'};
 }
+
+
+=head2 clear_error
+
+Clear error messages
+
+=cut
+
+
 sub clear_error {
 	my $self = shift;
 	$self->{'_error'} = undef;
 }
 
-# Handle moving seeds around board and deal with legal moves
+=head2 move
+
+Handle moving seeds around board and deal with legal moves
+
+=cut
+
 sub move {
 	my ($self,$house,$player,$nocheck) = @_;
 	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
@@ -80,7 +269,14 @@ sub move {
 	return $self->whole_board;
 }
 
-# Score moves
+
+=head2 score
+
+Score moves
+
+=cut
+
+
 sub score {
 	my ($self,$player) = @_;
 	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
@@ -113,7 +309,13 @@ sub score {
 	return $total_score;  
 }
 
-# Return hash of seed counts for all houses on board
+
+=head2 whole_board
+
+Return hash of seed counts for all houses on board
+
+=cut
+
 sub whole_board {
 	my $self = shift;
 	my $board;
@@ -121,8 +323,14 @@ sub whole_board {
 	return $board; 
 }
 
-# Clone the board, try all possible moves for current player and return valid moves that
-# don't leave the opponent houses empty
+
+=head2 possible_feed
+
+Clone the board, try all possible moves for current player and return valid moves that don't leave the opponent houses empty
+
+=cut
+
+
 sub possible_feed {
 	my $self = shift;
 	my %valid_move;
@@ -137,7 +345,14 @@ sub possible_feed {
 	return \%valid_move;		
 }
 
-# Return opponent of current player
+
+=head2 other_player
+
+Return opponent of current player
+
+=cut
+
+
 sub other_player {
 	my $self = shift;
 	if ($self->player->position == 1) {
@@ -148,7 +363,14 @@ sub other_player {
 	}
 }
 
-# Return the houses owned by player you pass to it
+
+=head2 player_houses
+
+Return the houses owned by player you pass to it
+
+=cut
+
+
 sub player_houses {
 	my ($self,$player) = @_;
 	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
@@ -156,7 +378,14 @@ sub player_houses {
 	return @houses;
 }
 
-# Return true if players houses are all empty
+
+=head2 player_houses_empty
+
+Return true if players houses are all empty
+
+=cut
+
+
 sub player_houses_empty {
 	my ($self,$player) = @_;
 	carp "Not a Mancala::Player" unless ref $player eq 'Mancala::Player';
@@ -166,6 +395,19 @@ sub player_houses_empty {
 	return 1;
 }
 
+=head1 AUTHOR
+
+Greg Hellings
+
+=head1 LICENSE
+
+This library is free sofrware.  You can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

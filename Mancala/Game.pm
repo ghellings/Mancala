@@ -2,20 +2,74 @@ package Mancala::Game;
 use strict;
 use warnings;
 use Mancala::Board;
+use Moose;
+use namespace::autoclean;
 use Data::Dumper;
 
-use Moose;
-has 'player1'	=> ( is => 'ro', isa => 'Mancala::Player', required => 1 );
-has 'player2'	=> ( is => 'ro', isa => 'Mancala::Player', required => 1 );
-has 'board'	=> ( is => 'ro', isa => 'Mancala::Board', lazy => 1, builder => '_board');
-has 'turn'	=> ( is => 'rw', isa => 'Mancala::Player' );
-no Moose;
+with qw{MooseX::Clone};
+
+=head1 NAME
+
+Mancala::Game
+
+=head1 DESCRIPTION
+
+Player the game Mancala
+
+=head1 METHODS
+
+=cut
+
+
+=head2 player1
+
+=cut
+
+has 'player1'	=> ( is => 'ro', isa => 'Mancala::Player', required => 1, traits => [qw{Clone}]);
+
+=head2 player2
+
+
+=cut
+
+has 'player2'	=> ( is => 'ro', isa => 'Mancala::Player', required => 1, traits => [qw{Clone}]);
+
+=head2 board
+
+
+=cut
+
+has 'board'	    => ( is => 'ro', isa => 'Mancala::Board', lazy => 1, builder => '_board'), traits => [qw{Clone}];
+
+=head2 turn
+
+
+=cut
+
+has 'turn'	    => ( is => 'rw', isa => 'Mancala::Player', traits => [qw{Clone}]);
+
+
+=head2 gameid
+
+=cut
+
+has 'gameid'    => ( is => 'rw', isa => 'Str', traits => [qw{Clone}]);
+
+
+=head2 _board
+
+=cut
 
 sub _board {
 	my $self = shift;
 	my $board = Mancala::Board->new(player1 => $self->player1, player2 => $self->player2);
 	return $board;
 }
+
+
+=head2 play
+
+=cut
 
 sub play {
 	my $self = shift;
@@ -52,6 +106,11 @@ sub play {
 	$self->print_scores;
 }
 
+
+=head2 change_player_turn
+
+=cut
+
 sub change_player_turn {
 	my $self = shift;
 	if ( $self->turn == $self->player1 ) {
@@ -62,6 +121,12 @@ sub change_player_turn {
 	}
 	return $self->turn;
 }
+
+
+=head2 print_board
+
+=cut
+
 
 sub print_board {
 	my $self = shift;
@@ -74,10 +139,29 @@ sub print_board {
 	}  
 }
 
+
+=head2 print_scores
+
+=cut
+
 sub print_scores {
 	my $self = shift;
 	print "Player 1: ".$self->player1->points."\n";
 	print "Player 2: ".$self->player2->points."\n";
 }
+
+
+=head1 AUTHOR
+
+Greg Hellings
+
+=head1 LICENSE
+
+This library is free sofrware.  You can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+__PACKAGE__->meta->make_immutable;
 
 1;
