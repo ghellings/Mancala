@@ -3,10 +3,11 @@ use strict;
 use warnings;
 use Mancala::Board;
 use Moose;
+use MooseX::Storage;
 use namespace::autoclean;
 use Data::Dumper;
 
-with qw{MooseX::Clone};
+with qw{MooseX::Clone}, Storage( format => 'JSON', traits => [ qw| OnlyWhenBuilt | ] ), qw{MooseX::Clone};
 
 =head1 NAME
 
@@ -91,7 +92,7 @@ sub play {
 				print "Game won by : ".$winner->name;
 				exit;
 			}
-			print $self->board->error unless $valid_input;
+			print join "\n", @{ $self->board->error }, "\n" unless $valid_input;
 		} until ($valid_input);
 		$self->print_board;
 		my $score = $self->board->score($self->turn);
@@ -162,6 +163,7 @@ it under the same terms as Perl itself.
 
 =cut
 
+__PACKAGE__->config( class => 'Mancala::Game' );
 __PACKAGE__->meta->make_immutable;
 
 1;

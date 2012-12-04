@@ -85,13 +85,13 @@ subtest 'Checking for invalid player moves' => sub {
 		$board->player($player1);
 		$board->clear_error;
 		$board->move($_,$player1);
-		like($board->error, qr/Not a valid move for Player1.*/, qq{Check for player1 moving seeds from player2's house$_});
+		like($board->getlast_error, qr/Not a valid move for Player1.*/, qq{Check for player1 moving seeds from player2's house$_});
 	} 7..12;
 	map {
 		$board->player($player2);
 		$board->clear_error;
 		$board->move($_,$player2);
-		my $error = $board->error || "";
+		my $error = $board->getlast_error || "";
 		like($error, qr/Not a valid move for Player2.*/, qq{Check for player2 moving seeds from player1's house$_});
 	} 1..6;
 	done_testing();
@@ -124,7 +124,7 @@ ok(! defined($board->player_houses_empty($player2)) , q{Checking false player_ho
 $board->clear_error;
 $board->player($player2);
 my $result = $board->move(7,$player2);
-like($board->error, qr/Move leaves opponent empty/, q{Ensure player7 must feed player1});
+like($board->getlast_error, qr/Move leaves opponent empty/, q{Ensure player7 must feed player1});
 
 # Test 17
 map{ $board->$_(0) } @houses[7..11];

@@ -4,8 +4,9 @@ use warnings;
 use Data::Dumper;
 use namespace::autoclean;
 use Moose;
+use MooseX::Storage;
 
-with qw{MooseX::Clone};
+with qw{MooseX::Clone}, Storage( format => 'JSON', traits => [ qw| OnlyWhenBuilt | ] );
 
 =head1 NAME
 

@@ -5,10 +5,10 @@ use Tie::Cycle;
 use Data::Dumper;
 use Carp;
 use Moose;
+use MooseX::Storage;
 use namespace::autoclean;
 
-with qw{MooseX::Clone};
-
+with qw{MooseX::Clone}, Storage( format => 'JSON', traits => [ qw| OnlyWhenBuilt | ] );
 =head1 NAME
 
 Mancala::Board
@@ -198,27 +198,32 @@ has '_lasthouse'	=> ( 'is' => 'rw', isa => 'Str');
 
 Collect and retrieve errors
 
-=cut
+=head3  clear_error
 
+=head3  match_error
 
-sub error {
-	my ($self,$error) = @_;
-	$self->{'_error'} .= $error."\n" if $error;
-	return $self->{'_error'};
-}
+=head3  count_error
 
+=head3  has_error
 
-=head2 clear_error
-
-Clear error messages
+=head3  add_error
 
 =cut
 
-
-sub clear_error {
-	my $self = shift;
-	$self->{'_error'} = undef;
-}
+has 'error'     => (
+    traits      =>  ['Array'],
+    is          => 'ro',
+    isa         => 'ArrayRef[Str]',
+    default     => sub { [] },
+    handles     => {
+        clear_error     => 'clear',
+        match_error     => 'grep',
+        count_error     => 'count',
+        has_error       => 'count',
+        add_error       => 'push',
+        getlast_error   => 'shift',
+    },
+);
 
 =head2 move
 
@@ -236,12 +241,12 @@ sub move {
 	unless($nocheck) {
 		# check if choosen house is a valid house for player to play from
 		unless ( grep /^$start_house$/, ($self->player_houses($player)) ) {
-			$self->error("Not a valid move for ".$self->player->name);
+			$self->add_error("Not a valid move for ".$self->player->name);
 			return;
 		} 
 		# ensure seeds are in house selected
 		$seeds = $self->$start_house();
-		$self->error("No seeds in house") unless $seeds;
+		$self->add_error("No seeds in house") unless $seeds;
 
 		my $valid_moves;
 		# check a list of valid moves;
@@ -251,10 +256,10 @@ sub move {
 			$self->wincondition(1);
 			return;
 		}
-		unless ( $self->error ) {
-			$self->error("Move leaves opponent empty") unless $valid_moves->{$start_house};
+		unless ( $self->has_error ) {
+			$self->add_error("Move leaves opponent empty") unless $valid_moves->{$start_house};
 		}
-		return if $self->error;
+		return if $self->has_error;
 	}
 	# get seeds for nocheck case
 	$seeds = $self->$start_house() unless $seeds && $nocheck;
